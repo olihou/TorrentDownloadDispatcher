@@ -8,4 +8,4 @@ In this first version the torrent proxyfier is [RealDebrid](https://real-debrid.
 
 In the future I would migrate the solution to the mediator pattern architecture to expand the possibilites smoothlessly (like a progress tracker for instance) and provide more provider for the torrent proxyfier and to be compatible with more download manager.
 
-[![Build Status](https://olihou.visualstudio.com/TorrentDownloader/_apis/build/status/olihou.TorrentDownloader?branchName=master)](https://olihou.visualstudio.com/TorrentDownloader/_build/latest?definitionId=1&branchName=master)
+[![Build Status](https://olihou.visualstudio.com/TorrentDownloadDispatcher/_apis/build/status/olihou.TorrentDownloadDispatcher?branchName=master)](https://olihou.visualstudio.com/TorrentDownloadDispatcher/_build/latest?definitionId=2&branchName=master)
