@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "TorrentDownloadDispatcher": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

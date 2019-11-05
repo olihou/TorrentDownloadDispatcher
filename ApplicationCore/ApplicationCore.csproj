@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Messages\" />
+    <Folder Include="Messages\Request\" />
+    <Folder Include="Messages\Notification\" />
+    <Folder Include="Messages\Response\" />
+    <Folder Include="Services\" />
+    <Folder Include="Configurations\" />
+    <Folder Include="Configurations\HttpDownloadInvoker\" />
+    <Folder Include="Configurations\TorrentHttpConverter\" />
+    <Folder Include="Configurations\TorrentWatcher\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.0.0" />
+  </ItemGroup>
+</Project>
