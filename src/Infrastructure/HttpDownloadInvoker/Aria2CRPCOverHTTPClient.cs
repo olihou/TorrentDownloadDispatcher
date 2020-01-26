@@ -35,19 +35,27 @@ namespace Infrastructure.HttpDownloadInvoker
 
         public async Task Handle(InvokeDownload notification, CancellationToken cancellationToken)
         {
-            JObject root = new JObject();
-            root.Add("jsonrpc", "2.0");
-            root.Add("id", notification.Id);
-            root.Add("method", "aria2.addUri");
-            root.Add("params", new JArray(notification.FilesToDownload.Select(p => new JArray(p.ToString()))));
-            var json = JsonConvert.SerializeObject(root);
-
             try
             {
-                using var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
-                using var message = new HttpRequestMessage(HttpMethod.Post, "jsonrpc") { Content = stringContent };
-                using var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
-                response.EnsureSuccessStatusCode();
+                JObject root = new JObject
+                {
+                    { "jsonrpc", "2.0" },
+                    { "id", Guid.NewGuid() },
+                    { "method", "aria2.addUri" }
+                };
+
+                foreach (var download in notification.FilesToDownload)
+                {
+                    var url = new JArray();
+                    url.Add(new JArray(download.ToString()));
+                    root["params"] = url;
+
+                    var json = JsonConvert.SerializeObject(root);
+                    using var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+                    using var message = new HttpRequestMessage(HttpMethod.Post, "jsonrpc") { Content = stringContent };
+                    using var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
+                    response.EnsureSuccessStatusCode();
+                }
             }
             catch(HttpRequestException reqEx)
             {

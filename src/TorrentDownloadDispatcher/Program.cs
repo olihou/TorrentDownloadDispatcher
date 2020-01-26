@@ -63,7 +63,7 @@ namespace TorrentDownloadDispatcher
                         services.AddSingleton<INotificationHandler<InvokeDownload>, Aria2CRPCOverHTTPClient>();
                         services.Configure<Aria2CConfiguration>(hostContext.Configuration.GetSection(aria2cConfigKey));
                     }
-
+                    services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
                     services.AddSingleton<IRequestHandler<SelectFileOfTorrent, SelectedFileOfTorrent>, TorrentFilesSelectorHandler>();
                     
                     services.AddHostedService<Worker>();

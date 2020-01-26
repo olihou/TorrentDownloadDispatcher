@@ -26,7 +26,7 @@ namespace ApplicationCore.Services
                 Name = notification.Name
             });
 
-            _ = _mediator.Publish(new InvokeDownload
+            await _mediator.Publish(new InvokeDownload
             {
                 Id = unrestictTorrent.Id,
                 FilesToDownload = unrestictTorrent.Files

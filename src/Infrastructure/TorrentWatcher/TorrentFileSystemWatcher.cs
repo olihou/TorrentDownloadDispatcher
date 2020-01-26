@@ -1,4 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reactive.Linq;
 using ApplicationCore.Configurations.TorrentWatcher;
 using ApplicationCore.Messages.Notification;
 using ApplicationCore.Services;
@@ -30,17 +34,41 @@ namespace Infrastructure.TorrentWatcher
 
             this.Path = _config.Path;
             this.Filter = "*.torrent";
-            this.Changed += PublishNotification;
-            this.Created += PublishNotification;
+            this.NotifyFilter = NotifyFilters.FileName;
+            Observable.FromEvent<FileSystemEventHandler, FileSystemEventArgs>(handler =>
+            {
+                FileSystemEventHandler fsHandler = (sender, e) =>
+                {
+                    handler(e);
+                };
+
+                return fsHandler;
+            },
+            (obs) =>
+            {
+                this.Changed += obs;
+                this.Created += obs;
+            },
+            (obs) =>
+            {
+                this.Changed -= obs;
+                this.Created -= obs;
+            })
+            .Buffer(1, 2)
+            .Subscribe(PublishNotification);
         }
 
         public void Start() => this.EnableRaisingEvents = true;
 
-        void PublishNotification(object sender, FileSystemEventArgs args) =>
+        void PublishNotification(IList<FileSystemEventArgs> args)
+        {
+            var arg = args.First();
+            _logger.LogInformation("New file detected ({0}) : {1}", arg.ChangeType, arg.Name);
             _mediator.Publish(new NewTorrent
             {
-                Name = args.Name,
-                Content = File.ReadAllBytes(args.FullPath)
+                Name = arg.Name,
+                Content = File.ReadAllBytes(arg.FullPath)
             });
+        }
     }
 }

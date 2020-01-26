@@ -71,7 +71,8 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError("Torrent upload failed, check your API key or your subscruption", ex);
+                _logger.LogError(ex, "Torrent upload failed, check your API key or your subscruption");
+                _logger.LogInformation(await resp.Content.ReadAsStringAsync());
                 throw;
             }
 
@@ -108,7 +109,7 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
                 Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                         {
-                            "files", String.Join(";", fileToDownload)
+                            "files", String.Join(",", fileToDownload)
                         }
                 })
             };
