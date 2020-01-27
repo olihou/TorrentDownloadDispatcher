@@ -11,10 +11,11 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Options;
+using ApplicationCore.Contracts;
 
 namespace Infrastructure.HttpDownloadInvoker
 {
-    public class Aria2CRPCOverHTTPClient : INotificationHandler<InvokeDownload>
+    public class Aria2CRPCOverHTTPClient : IHttpDownloaderClient
     {
         private readonly Aria2CConfiguration _config;
         private readonly HttpClient _httpClient;
@@ -53,8 +54,8 @@ namespace Infrastructure.HttpDownloadInvoker
                     var json = JsonConvert.SerializeObject(root);
                     using var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
                     using var message = new HttpRequestMessage(HttpMethod.Post, "jsonrpc") { Content = stringContent };
-                    using var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
-                    response.EnsureSuccessStatusCode();
+                    //using var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                    //response.EnsureSuccessStatusCode();
                 }
             }
             catch(HttpRequestException reqEx)

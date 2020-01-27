@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using ApplicationCore.Configurations.TorrentWatcher;
+using ApplicationCore.Contracts;
 using ApplicationCore.Messages.Notification;
 using ApplicationCore.Services;
+using Infrastructure.TorrentHttpConverter.RealDebrid;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -54,20 +56,21 @@ namespace Infrastructure.TorrentWatcher
                 this.Changed -= obs;
                 this.Created -= obs;
             })
-            .Buffer(1, 2)
-            .Subscribe(PublishNotification);
+            .Where(p => System.IO.File.ReadAllBytes(p.FullPath).Any())
+            .Subscribe(PublishNotification)
+            .PublishMediator<RealDebridClient>()
+            .Notify<IHttpDownloaderClient>();
         }
 
         public void Start() => this.EnableRaisingEvents = true;
 
-        void PublishNotification(IList<FileSystemEventArgs> args)
+        void PublishNotification(FileSystemEventArgs args)
         {
-            var arg = args.First();
-            _logger.LogInformation("New file detected ({0}) : {1}", arg.ChangeType, arg.Name);
+            _logger.LogInformation("New file detected ({0}) : {1}", args.ChangeType, args.Name);
             _mediator.Publish(new NewTorrent
             {
-                Name = arg.Name,
-                Content = File.ReadAllBytes(arg.FullPath)
+                Name = args.Name,
+                Content = File.ReadAllBytes(args.FullPath)
             });
         }
     }

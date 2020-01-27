@@ -1,3 +1,4 @@
+using ApplicationCore.Contracts;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -51,19 +52,26 @@ namespace TorrentDownloadDispatcher
                         services.AddSingleton<ITorrentWatcher, TorrentFileSystemWatcher>();
                         services.AddSingleton<INotificationHandler<NewTorrent>, NewTorrentHandler>();
                     }
+
                     var realDebridConfigKey = "Providers:RealDebrid";
                     if (hostContext.Configuration.GetSection(realDebridConfigKey) != null)
                     {
                         services.Configure<RealDebridConfiguration>(hostContext.Configuration.GetSection(realDebridConfigKey));
                         services.AddSingleton<IRequestHandler<TorrentHttpDownloadConverter, TorrentConvertedToHttpFile>, RealDebridClient>();
                     }
+                    
+                    services.AddSingleton<INotificationHandler<InvokeDownload>>(sp => sp.GetService<IHttpDownloaderClient>());
+                
                     var aria2cConfigKey = "Providers:Aria2cHttp";
                     if (hostContext.Configuration.GetSection(aria2cConfigKey) != null)
                     {
-                        services.AddSingleton<INotificationHandler<InvokeDownload>, Aria2CRPCOverHTTPClient>();
+                        services.AddSingleton<IHttpDownloaderClient, Aria2CRPCOverHTTPClient>();
                         services.Configure<Aria2CConfiguration>(hostContext.Configuration.GetSection(aria2cConfigKey));
                     }
-                    services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
+
+                    services.AddSingleton<ServiceFactory>(sp => sp.GetService);
+                    services.AddSingleton<IMediator, Mediator>();
+                    
                     services.AddSingleton<IRequestHandler<SelectFileOfTorrent, SelectedFileOfTorrent>, TorrentFilesSelectorHandler>();
                     
                     services.AddHostedService<Worker>();
