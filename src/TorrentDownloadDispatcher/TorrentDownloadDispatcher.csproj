@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR" Version="8.0.0" />
     <PackageReference Include="Mediatr.ObservableExtentions" Version="0.1.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.1" />
     <!--<PackageReference Include="MediatR" Version="8.0.0" />-->
@@ -15,7 +16,6 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="3.1.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\MediatR\src\MediatR\MediatR.csproj" />
     <ProjectReference Include="..\ApplicationCore\ApplicationCore.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>

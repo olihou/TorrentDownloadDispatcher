@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -17,9 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <!--<PackageReference Include="MediatR" Version="8.0.0" />-->
+    <PackageReference Include="MediatR" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\MediatR\src\MediatR\MediatR.csproj" />
   </ItemGroup>
 </Project>
