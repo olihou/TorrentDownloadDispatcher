@@ -50,7 +50,6 @@ namespace TorrentDownloadDispatcher
                     {
                         services.Configure<FileSystemWatcherConfiguration>(hostContext.Configuration.GetSection(fileSystemConfigKey));
                         services.AddSingleton<ITorrentWatcher, TorrentFileSystemWatcher>();
-                        services.AddSingleton<INotificationHandler<NewTorrent>, NewTorrentHandler>();
                     }
 
                     var realDebridConfigKey = "Providers:RealDebrid";

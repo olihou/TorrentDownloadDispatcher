@@ -1,8 +1,10 @@
-﻿using System;
+﻿using ApplicationCore.Messages.Notification;
+using System;
+
 namespace ApplicationCore.Services
 {
     public interface ITorrentWatcher : IDisposable
     {
-        void Start();
+        IObservable<NewTorrent> NewFileObservable { get; }
     }
 }
