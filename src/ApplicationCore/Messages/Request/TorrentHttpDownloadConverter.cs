@@ -4,7 +4,7 @@ using MediatR;
 
 namespace ApplicationCore.Messages.Request
 {
-    public class TorrentHttpDownloadConverter : IRequest<TorrentConvertedToHttpFile>
+    public class TorrentHttpDownloadConverter
     {
         public Guid Id { get; set; }
         public byte[] Content { get; set; }

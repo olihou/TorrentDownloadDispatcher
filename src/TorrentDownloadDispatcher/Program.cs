@@ -5,6 +5,7 @@ using ApplicationCore.Configurations;
 using ApplicationCore.Configurations.HttpDownloadInvoker;
 using ApplicationCore.Configurations.TorrentHttpConverter;
 using ApplicationCore.Configurations.TorrentWatcher;
+using ApplicationCore.Contract;
 using ApplicationCore.Messages.Notification;
 using ApplicationCore.Messages.Request;
 using ApplicationCore.Messages.Response;
@@ -49,22 +50,21 @@ namespace TorrentDownloadDispatcher
                     {
                         services.Configure<FileSystemWatcherConfiguration>(hostContext.Configuration.GetSection(fileSystemConfigKey));
                         services.AddSingleton<ITorrentWatcher, TorrentFileSystemWatcher>();
-                        services.AddSingleton<INotificationHandler<NewTorrent>, NewTorrentHandler>();
                     }
                     var realDebridConfigKey = "Providers:RealDebrid";
                     if (hostContext.Configuration.GetSection(realDebridConfigKey) != null)
                     {
                         services.Configure<RealDebridConfiguration>(hostContext.Configuration.GetSection(realDebridConfigKey));
-                        services.AddSingleton<IRequestHandler<TorrentHttpDownloadConverter, TorrentConvertedToHttpFile>, RealDebridClient>();
+                        services.AddSingleton<ITorrentToHttpConverter, RealDebridClient>();
                     }
                     var aria2cConfigKey = "Providers:Aria2cHttp";
                     if (hostContext.Configuration.GetSection(aria2cConfigKey) != null)
                     {
-                        services.AddSingleton<INotificationHandler<InvokeDownload>, Aria2CRPCOverHTTPClient>();
+                        services.AddSingleton<IHttpDownloadInvoker, Aria2CRPCOverHTTPClient>();
                         services.Configure<Aria2CConfiguration>(hostContext.Configuration.GetSection(aria2cConfigKey));
                     }
+
                     services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
-                    services.AddSingleton<IRequestHandler<SelectFileOfTorrent, SelectedFileOfTorrent>, TorrentFilesSelectorHandler>();
                     
                     services.AddHostedService<Worker>();
                 });

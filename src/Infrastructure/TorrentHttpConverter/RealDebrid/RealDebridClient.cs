@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ApplicationCore.Configurations.TorrentHttpConverter;
+using ApplicationCore.Contract;
 using ApplicationCore.Messages.Request;
 using ApplicationCore.Messages.Response;
 using MediatR;
@@ -15,7 +17,7 @@ using Microsoft.Extensions.Options;
 
 namespace Infrastructure.TorrentHttpConverter.RealDebrid
 {
-    public class RealDebridClient : IRequestHandler<TorrentHttpDownloadConverter, TorrentConvertedToHttpFile>
+    public class RealDebridClient : ITorrentToHttpConverter
     {
         private readonly HttpClient _httpClient;
         private readonly RealDebridConfiguration _configuration;
@@ -36,24 +38,6 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
                 BaseAddress = _configuration.Uri
             };
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration.ApiKey);
-        }
-
-        public async Task<TorrentConvertedToHttpFile> Handle(TorrentHttpDownloadConverter request, CancellationToken cancellationToken)
-        {
-            var torrentId = await UploadTorrent(request.Content);
-
-            await SelectFile(torrentId);
-
-            await WaitForDownloadCompletion(torrentId);
-
-            var links = await UnrestrictLink(torrentId);
-
-            return new TorrentConvertedToHttpFile
-            {
-                Id = request.Id,
-                Name = request.Name,
-                Files = links.ToList()
-            };
         }
 
         async Task<string> UploadTorrent(byte[] content)
@@ -172,6 +156,47 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
             });
 
             return links.ToList();
+        }
+
+        public void OnCompleted()
+        {
+            _httpClient.Dispose();
+        }
+
+        public void OnError(Exception error)
+        {
+            _logger.LogError(error, "Error occured");
+        }
+
+        public async Task<TorrentConvertedToHttpFile> Handle(TorrentHttpDownloadConverter request, CancellationToken cancellationToken = default)
+        {
+            var torrentId = await UploadTorrent(request.Content);
+
+            await SelectFile(torrentId);
+
+            await WaitForDownloadCompletion(torrentId);
+
+            var links = await UnrestrictLink(torrentId);
+
+            return new TorrentConvertedToHttpFile
+            {
+                Id = request.Id,
+                Name = request.Name,
+                Files = links.ToList()
+            };
+        }
+
+        IObservable<TorrentConvertedToHttpFile> ITorrentToHttpConverter.Handler(IObservable<TorrentHttpDownloadConverter> source)
+        {
+            return Observable.Create<TorrentConvertedToHttpFile>((obs) =>
+            {
+                var subscription = source.Subscribe(
+                    async val => obs.OnNext(await Handle(val)),
+                    OnError,
+                    OnCompleted);
+
+                return subscription;
+            });
         }
     }
 }

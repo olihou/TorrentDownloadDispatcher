@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using ApplicationCore.Configurations.TorrentWatcher;
+using ApplicationCore.Contract;
 using ApplicationCore.Messages.Notification;
-using ApplicationCore.Services;
+using ApplicationCore.Utils.Observable;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,7 +17,6 @@ namespace Infrastructure.TorrentWatcher
     {
         private readonly FileSystemWatcherConfiguration _config;
         private readonly ILogger _logger;
-        private readonly IMediator _mediator;
 
         public TorrentFileSystemWatcher(
             IOptions<FileSystemWatcherConfiguration> config,
@@ -25,7 +25,6 @@ namespace Infrastructure.TorrentWatcher
         {
             _config = config.Value;
             _logger = logger;
-            _mediator = mediator;
 
             if (_config.Path == null || !Directory.Exists(_config.Path))
             {
@@ -35,7 +34,9 @@ namespace Infrastructure.TorrentWatcher
             this.Path = _config.Path;
             this.Filter = "*.torrent";
             this.NotifyFilter = NotifyFilters.FileName;
-            Observable.FromEvent<FileSystemEventHandler, FileSystemEventArgs>(handler =>
+        }
+
+        IObservable<NewTorrent> ITorrentWatcher.Handler => Observable.FromEvent<FileSystemEventHandler, FileSystemEventArgs>(handler =>
             {
                 FileSystemEventHandler fsHandler = (sender, e) =>
                 {
@@ -48,27 +49,22 @@ namespace Infrastructure.TorrentWatcher
             {
                 this.Changed += obs;
                 this.Created += obs;
+                this.EnableRaisingEvents = true;
             },
             (obs) =>
             {
+                this.EnableRaisingEvents = false;
                 this.Changed -= obs;
                 this.Created -= obs;
             })
-            .Buffer(1, 2)
-            .Subscribe(PublishNotification);
-        }
-
-        public void Start() => this.EnableRaisingEvents = true;
-
-        void PublishNotification(IList<FileSystemEventArgs> args)
-        {
-            var arg = args.First();
-            _logger.LogInformation("New file detected ({0}) : {1}", arg.ChangeType, arg.Name);
-            _mediator.Publish(new NewTorrent
+            .Buffer(TimeSpan.FromSeconds(2))
+            .Select(p => p.GroupBy(gb => gb.FullPath))
+            .SelectMany(p => p.Select(p => p.First()))
+            .Do((arg) => _logger.LogInformation("New file detected ({0}) : {1}", arg.ChangeType, arg.Name))
+            .Select(arg => new NewTorrent
             {
                 Name = arg.Name,
                 Content = File.ReadAllBytes(arg.FullPath)
             });
-        }
     }
 }

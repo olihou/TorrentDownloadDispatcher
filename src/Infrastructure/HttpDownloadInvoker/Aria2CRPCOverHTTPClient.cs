@@ -1,20 +1,21 @@
 ﻿using System;
-using System.Linq;
 using System.Net.Http;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ApplicationCore.Configurations.HttpDownloadInvoker;
+using ApplicationCore.Contract;
 using ApplicationCore.Messages.Notification;
-using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Microsoft.Extensions.Options;
 
 namespace Infrastructure.HttpDownloadInvoker
 {
-    public class Aria2CRPCOverHTTPClient : INotificationHandler<InvokeDownload>
+    public class Aria2CRPCOverHTTPClient : IHttpDownloadInvoker
     {
         private readonly Aria2CConfiguration _config;
         private readonly HttpClient _httpClient;
@@ -53,7 +54,7 @@ namespace Infrastructure.HttpDownloadInvoker
                     var json = JsonConvert.SerializeObject(root);
                     using var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
                     using var message = new HttpRequestMessage(HttpMethod.Post, "jsonrpc") { Content = stringContent };
-                    using var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
+                    using var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
                     response.EnsureSuccessStatusCode();
                 }
             }
@@ -67,6 +68,24 @@ namespace Infrastructure.HttpDownloadInvoker
                 _logger.LogError(ex, "Download server is not available");
                 throw;
             }
+        }
+
+        IObserver<InvokeDownload> IHttpDownloadInvoker.Handler => Observer.Create<InvokeDownload>(OnNext, OnError, OnCompleted);
+        
+
+        public void OnCompleted()
+        {
+            _httpClient.Dispose();
+        }
+
+        public void OnError(Exception error)
+        {
+            _logger.LogError(error, "unknown error occured");
+        }
+
+        public void OnNext(InvokeDownload value)
+        {
+            Handle(value, default).GetAwaiter().OnCompleted(() => _logger.LogDebug("Download invoked"));
         }
     }
 }
