@@ -1,15 +1,10 @@
 using System;
-using System.Reflection;
-using System.Threading.Tasks;
 using ApplicationCore.Configurations;
 using ApplicationCore.Configurations.HttpDownloadInvoker;
 using ApplicationCore.Configurations.TorrentHttpConverter;
 using ApplicationCore.Configurations.TorrentWatcher;
 using ApplicationCore.Contract;
 using ApplicationCore.Messages.Notification;
-using ApplicationCore.Messages.Request;
-using ApplicationCore.Messages.Response;
-using ApplicationCore.Services;
 using Infrastructure.HttpDownloadInvoker;
 using Infrastructure.TorrentHttpConverter.RealDebrid;
 using Infrastructure.TorrentWatcher;
@@ -51,12 +46,15 @@ namespace TorrentDownloadDispatcher
                         services.Configure<FileSystemWatcherConfiguration>(hostContext.Configuration.GetSection(fileSystemConfigKey));
                         services.AddSingleton<ITorrentWatcher, TorrentFileSystemWatcher>();
                     }
+
                     var realDebridConfigKey = "Providers:RealDebrid";
                     if (hostContext.Configuration.GetSection(realDebridConfigKey) != null)
                     {
                         services.Configure<RealDebridConfiguration>(hostContext.Configuration.GetSection(realDebridConfigKey));
                         services.AddSingleton<ITorrentToHttpConverter, RealDebridClient>();
                     }
+                    
+                
                     var aria2cConfigKey = "Providers:Aria2cHttp";
                     if (hostContext.Configuration.GetSection(aria2cConfigKey) != null)
                     {

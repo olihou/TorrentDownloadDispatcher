@@ -1,11 +1,12 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationCore", "src\ApplicationCore\ApplicationCore.csproj", "{BC13D0FB-CFF2-405D-AE04-E6A2411AE364}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationCore", "src\ApplicationCore\ApplicationCore.csproj", "{BC13D0FB-CFF2-405D-AE04-E6A2411AE364}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorrentDownloadDispatcher", "src\TorrentDownloadDispatcher\TorrentDownloadDispatcher.csproj", "{EE222CB3-801C-4D00-884E-3072826B7F89}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TorrentDownloadDispatcher", "src\TorrentDownloadDispatcher\TorrentDownloadDispatcher.csproj", "{EE222CB3-801C-4D00-884E-3072826B7F89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{19596FE7-499E-4D5A-8074-E0FCB41CFF9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{19596FE7-499E-4D5A-8074-E0FCB41CFF9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,5 +26,11 @@ Global
 		{19596FE7-499E-4D5A-8074-E0FCB41CFF9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19596FE7-499E-4D5A-8074-E0FCB41CFF9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19596FE7-499E-4D5A-8074-E0FCB41CFF9A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5743AF84-424C-4762-A927-C865123C137A}
 	EndGlobalSection
 EndGlobal

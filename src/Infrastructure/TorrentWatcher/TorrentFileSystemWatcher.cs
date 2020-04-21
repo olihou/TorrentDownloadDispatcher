@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,11 +17,10 @@ namespace Infrastructure.TorrentWatcher
     {
         private readonly FileSystemWatcherConfiguration _config;
         private readonly ILogger _logger;
-
+  
         public TorrentFileSystemWatcher(
             IOptions<FileSystemWatcherConfiguration> config,
-            ILogger<TorrentFileSystemWatcher> logger,
-            IMediator mediator)
+            ILogger<TorrentFileSystemWatcher> logger)
         {
             _config = config.Value;
             _logger = logger;

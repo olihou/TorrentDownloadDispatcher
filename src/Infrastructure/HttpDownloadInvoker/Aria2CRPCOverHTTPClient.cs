@@ -40,16 +40,17 @@ namespace Infrastructure.HttpDownloadInvoker
             {
                 JObject root = new JObject
                 {
-                    { "jsonrpc", "2.0" },
                     { "id", Guid.NewGuid() },
+                    { "jsonrpc", "2.0" },
                     { "method", "aria2.addUri" }
                 };
 
                 foreach (var download in notification.FilesToDownload)
                 {
-                    var url = new JArray();
-                    url.Add(new JArray(download.ToString()));
-                    root["params"] = url;
+                    root["params"] = new JArray
+                    {
+                        new JArray(download.ToString())
+                    };
 
                     var json = JsonConvert.SerializeObject(root);
                     using var stringContent = new StringContent(json, Encoding.UTF8, "application/json");

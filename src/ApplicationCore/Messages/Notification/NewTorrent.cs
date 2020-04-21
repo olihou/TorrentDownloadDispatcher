@@ -1,7 +1,4 @@
-﻿using System;
-using MediatR;
-
-namespace ApplicationCore.Messages.Notification
+﻿namespace ApplicationCore.Messages.Notification
 {
     public class NewTorrent
     {
