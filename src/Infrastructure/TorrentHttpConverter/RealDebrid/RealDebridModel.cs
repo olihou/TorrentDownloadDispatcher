@@ -38,9 +38,6 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
         [JsonProperty("filename")]
         public string Filename { get; set; }
 
-        [JsonProperty("mimeType")]
-        public MimeType MimeType { get; set; }
-
         [JsonProperty("filesize")]
         public long Filesize { get; set; }
 
@@ -233,7 +230,6 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
             Converters =
             {
                 HostConverter.Singleton,
-                MimeTypeConverter.Singleton,
                 new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
             },
         };
@@ -271,46 +267,5 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
         }
 
         public static readonly HostConverter Singleton = new HostConverter();
-    }
-
-    internal class MimeTypeConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(MimeType) || t == typeof(MimeType?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null) return null;
-            var value = serializer.Deserialize<string>(reader);
-            switch (value)
-            {
-                case "video/mp4":
-                    return MimeType.VideoMp4;
-                case "video/x-matroska":
-                    return MimeType.VideoXMatroska;
-            }
-            throw new Exception("Cannot unmarshal type MimeType");
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (MimeType)untypedValue;
-            switch (value)
-            {
-                case MimeType.VideoMp4:
-                    serializer.Serialize(writer, "video/mp4");
-                    return;
-                case MimeType.VideoXMatroska:
-                    serializer.Serialize(writer, "video/x-matroska");
-                    return;
-            }
-            throw new Exception("Cannot marshal type MimeType");
-        }
-
-        public static readonly MimeTypeConverter Singleton = new MimeTypeConverter();
     }
 }

@@ -113,6 +113,7 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
                 var req = await _httpClient.SendAsync(message);
                 result = TorrentInfo.FromJson(await req.Content.ReadAsStringAsync());
             } while (result.Status != "downloaded");
+            _logger.LogTrace("Torrent downloaded");
         }
 
         async Task<IEnumerable<Uri>> UnrestrictLink(string id)
@@ -174,7 +175,12 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
 
             await SelectFile(torrentId);
 
+            _logger.LogTrace("Begin wait for remote download torrent completion : {0}", request.Id);
+
             await WaitForDownloadCompletion(torrentId);
+
+            _logger.LogTrace("remote torrent downloaded : {0}", request.Id);
+
 
             var links = await UnrestrictLink(torrentId);
 
