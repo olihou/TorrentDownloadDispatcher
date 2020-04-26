@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ApplicationCore.Configurations.HttpDownloadInvoker;
 using ApplicationCore.Contract;
 using ApplicationCore.Messages.Notification;
+using ApplicationCore.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -34,7 +35,7 @@ namespace Infrastructure.HttpDownloadInvoker
             };
         }
 
-        public async Task Handle(InvokeDownload notification, CancellationToken cancellationToken)
+        public async Task Handle(DownloadBase notification, CancellationToken cancellationToken)
         {
             try
             {
@@ -45,7 +46,9 @@ namespace Infrastructure.HttpDownloadInvoker
                     { "method", "aria2.addUri" }
                 };
 
-                foreach (var download in notification.FilesToDownload)
+                var downloads = notification as InvokeDirectHTTPDownload;
+
+                foreach (var download in downloads.FilesToDownload)
                 {
                     root["params"] = new JArray
                     {
@@ -71,8 +74,7 @@ namespace Infrastructure.HttpDownloadInvoker
             }
         }
 
-        IObserver<InvokeDownload> IHttpDownloadInvoker.Handler => Observer.Create<InvokeDownload>(OnNext, OnError, OnCompleted);
-        
+        IObserver<DownloadBase> IHttpDownloadInvoker.Handler => Observer.Create<DownloadBase>(OnNext, OnError, OnCompleted);
 
         public void OnCompleted()
         {
@@ -84,7 +86,7 @@ namespace Infrastructure.HttpDownloadInvoker
             _logger.LogError(error, "unknown error occured");
         }
 
-        public void OnNext(InvokeDownload value)
+        public void OnNext(DownloadBase value)
         {
             Handle(value, default).GetAwaiter().OnCompleted(() => _logger.LogDebug("Download invoked"));
         }

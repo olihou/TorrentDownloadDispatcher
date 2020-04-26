@@ -1,13 +1,12 @@
 ﻿using System;
 using ApplicationCore.Messages.Response;
+using ApplicationCore.Models;
 using MediatR;
 
 namespace ApplicationCore.Messages.Request
 {
-    public class TorrentHttpDownloadConverter
+    public class TorrentHttpDownloadConverter : DownloadBase
     {
-        public Guid Id { get; set; }
         public byte[] Content { get; set; }
-        public string Name { get; set; }
     }
 }

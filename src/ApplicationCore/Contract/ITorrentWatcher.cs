@@ -1,10 +1,10 @@
 ﻿using System;
-using ApplicationCore.Messages.Notification;
+using ApplicationCore.Messages.Request;
 
 namespace ApplicationCore.Contract
 {
     public interface ITorrentWatcher : IDisposable
     {
-        IObservable<NewTorrent> Handler { get; }
+        IObservable<TorrentHttpDownloadConverter> Handler { get; }
     }
 }

@@ -93,7 +93,7 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
         public long Split { get; set; }
 
         [JsonProperty("progress")]
-        public long Progress { get; set; }
+        public double Progress { get; set; }
 
         [JsonProperty("status")]
         public string Status { get; set; }
@@ -225,6 +225,7 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
     {
         public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
         {
+            FloatParseHandling = FloatParseHandling.Double,
             MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
             DateParseHandling = DateParseHandling.None,
             Converters =

@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using ApplicationCore.Configurations.TorrentWatcher;
 using ApplicationCore.Contract;
-using ApplicationCore.Messages.Notification;
-using ApplicationCore.Utils.Observable;
-using MediatR;
+using ApplicationCore.Messages.Request;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -35,7 +32,7 @@ namespace Infrastructure.TorrentWatcher
             this.NotifyFilter = NotifyFilters.FileName;
         }
 
-        IObservable<NewTorrent> ITorrentWatcher.Handler => Observable.FromEvent<FileSystemEventHandler, FileSystemEventArgs>(handler =>
+        IObservable<TorrentHttpDownloadConverter> ITorrentWatcher.Handler => Observable.FromEvent<FileSystemEventHandler, FileSystemEventArgs>(handler =>
             {
                 FileSystemEventHandler fsHandler = (sender, e) =>
                 {
@@ -60,10 +57,11 @@ namespace Infrastructure.TorrentWatcher
             .Select(p => p.GroupBy(gb => gb.FullPath))
             .SelectMany(p => p.Select(p => p.First()))
             .Do((arg) => _logger.LogInformation("New file detected ({0}) : {1}", arg.ChangeType, arg.Name))
-            .Select(arg => new NewTorrent
+            .Select(notification => new TorrentHttpDownloadConverter
             {
-                Name = arg.Name,
-                Content = File.ReadAllBytes(arg.FullPath)
+                Id = Guid.NewGuid(),
+                Content = File.ReadAllBytes(notification.FullPath),
+                Name = notification.Name
             });
     }
 }

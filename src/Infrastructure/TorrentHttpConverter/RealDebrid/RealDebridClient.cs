@@ -5,12 +5,16 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using ApplicationCore.Configurations.TorrentHttpConverter;
 using ApplicationCore.Contract;
+using ApplicationCore.Exceptions;
+using ApplicationCore.Messages.Notification;
 using ApplicationCore.Messages.Request;
 using ApplicationCore.Messages.Response;
+using ApplicationCore.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,6 +27,7 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
         private readonly RealDebridConfiguration _configuration;
         private readonly IMediator _mediatr;
         private readonly ILogger<RealDebridClient> _logger;
+        Subject<ProgressTracker> _progressHandler { get; }
 
         public RealDebridClient(
             IOptions<RealDebridConfiguration> configuration,
@@ -30,6 +35,7 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
             ILogger<RealDebridClient> logger)
         {
             _configuration = configuration.Value;
+            _progressHandler = new Subject<ProgressTracker>();
             _mediatr = mediatr;
             _logger = logger;
 
@@ -57,6 +63,14 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
             {
                 _logger.LogError(ex, "Torrent upload failed, check your API key or your subscruption");
                 _logger.LogInformation(await resp.Content.ReadAsStringAsync());
+
+                //Implement logging depends on reqponse code 
+                //HTTP Status Code Reason
+                //400 Bad Request(see error message)
+                //401 Bad token(expired, invalid)
+                //403 Permission denied(account locked, not premium)
+                //503 Service unavailable(see error message)
+
                 throw;
             }
 
@@ -65,7 +79,7 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
             return result.Id;
         }
 
-        async Task SelectFile(string id)
+        async Task SelectFile(string id, DownloadBase download)
         {
             var fileToDownload = new List<string>(1) { "all" };
 
@@ -76,6 +90,8 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
             resp.EnsureSuccessStatusCode();
             var torrentInfo = TorrentInfo.FromJson(await resp.Content.ReadAsStringAsync());
 
+            download.FileAvailable = torrentInfo.Files.Select(p => p.Path).ToArray();
+
             var fileToKeep = await _mediatr.Send(new SelectFileOfTorrent(torrentInfo.Files.Select(p => p.Path)));
 
             var files = from file in torrentInfo.Files
@@ -85,8 +101,12 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
             if (files.Count() != torrentInfo.Files.Count)
             {
                 fileToDownload = files.ToList();
+                download.FileSelected = files.ToArray();
             }
-
+            else
+            {
+                download.FileSelected = download.FileAvailable;
+            }
 
             using var selectFileMessage = new HttpRequestMessage(HttpMethod.Post, $"torrents/selectFiles/{id}")
             {
@@ -102,9 +122,13 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
             res.EnsureSuccessStatusCode();
         }
 
-        async Task WaitForDownloadCompletion(string id)
+        async Task WaitForDownloadCompletion(string id, DownloadBase request, CancellationToken ct)
         {
             Torrent result;
+
+            using var cancelOperation = ct.Register(() => _httpClient.SendAsync(
+                new HttpRequestMessage(HttpMethod.Delete, $"torrents/info/{id}")));
+
             do
             {
                 var message = new HttpRequestMessage(HttpMethod.Get, $"torrents/info/{id}");
@@ -112,7 +136,28 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
                 Thread.Sleep(_configuration.IntervalCheckDownload);
                 var req = await _httpClient.SendAsync(message);
                 result = TorrentInfo.FromJson(await req.Content.ReadAsStringAsync());
+
+                switch (result.Status)
+                {
+                    case "queued":
+                    case "downloading":
+                    case "uploading":
+                        _progressHandler.OnNext(new ProgressTracker
+                        {
+                            DownloadStep = DownloadStep.RemoteTorrentDownloadToHttpServer,
+                            Progress = result.Progress,
+                            Torrent = request
+                        });
+                        break;
+                    case "error":
+                    case "virus":
+                    case "dead":
+                        _progressHandler.OnError(new RemoteTorrentDownloadException(result.Status, request));
+                        break;
+
+                }
             } while (result.Status != "downloaded");
+
             _logger.LogTrace("Torrent downloaded");
         }
 
@@ -169,15 +214,17 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
             _logger.LogError(error, "Error occured");
         }
 
-        public async Task<TorrentConvertedToHttpFile> Handle(TorrentHttpDownloadConverter request, CancellationToken cancellationToken = default)
+        public async Task<TorrentConvertedToHttpFile> Handle(DownloadBase request, CancellationToken cancellationToken = default)
         {
-            var torrentId = await UploadTorrent(request.Content);
+            var downloadRequest = request as TorrentHttpDownloadConverter;
 
-            await SelectFile(torrentId);
+            var torrentId = await UploadTorrent(downloadRequest.Content);
+
+            await SelectFile(torrentId, request);
 
             _logger.LogTrace("Begin wait for remote download torrent completion : {0}", request.Id);
 
-            await WaitForDownloadCompletion(torrentId);
+            await WaitForDownloadCompletion(torrentId, request, cancellationToken);
 
             _logger.LogTrace("remote torrent downloaded : {0}", request.Id);
 
@@ -192,17 +239,19 @@ namespace Infrastructure.TorrentHttpConverter.RealDebrid
             };
         }
 
-        IObservable<TorrentConvertedToHttpFile> ITorrentToHttpConverter.Handler(IObservable<TorrentHttpDownloadConverter> source)
+        IObservable<TorrentConvertedToHttpFile> ITorrentToHttpConverter.Handler(IObservable<DownloadBase> source, CancellationToken ct)
         {
             return Observable.Create<TorrentConvertedToHttpFile>((obs) =>
             {
                 var subscription = source.Subscribe(
-                    async val => obs.OnNext(await Handle(val)),
+                    async val => obs.OnNext(await Handle(val, ct)),
                     OnError,
                     OnCompleted);
 
                 return subscription;
             });
         }
+
+        public IObservable<ProgressTracker> ProgressHandler() => _progressHandler;
     }
 }

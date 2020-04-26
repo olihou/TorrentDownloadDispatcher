@@ -1,11 +1,12 @@
 ﻿using System;
 using ApplicationCore.Messages.Notification;
 using ApplicationCore.Messages.Response;
+using ApplicationCore.Models;
 
 namespace ApplicationCore.Contract
 {
     public interface IHttpDownloadInvoker
     {
-        IObserver<InvokeDownload> Handler { get; }
+        IObserver<DownloadBase> Handler { get; }
     }
 }

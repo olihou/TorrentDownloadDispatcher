@@ -4,7 +4,7 @@ using ApplicationCore.Configurations.HttpDownloadInvoker;
 using ApplicationCore.Configurations.TorrentHttpConverter;
 using ApplicationCore.Configurations.TorrentWatcher;
 using ApplicationCore.Contract;
-using ApplicationCore.Messages.Notification;
+using ApplicationCore.Services;
 using Infrastructure.HttpDownloadInvoker;
 using Infrastructure.TorrentHttpConverter.RealDebrid;
 using Infrastructure.TorrentWatcher;
@@ -12,6 +12,8 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using TorrentDownloadDispatcher.Display;
 
 namespace TorrentDownloadDispatcher
 {
@@ -38,7 +40,10 @@ namespace TorrentDownloadDispatcher
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddOptions();
+                    
                     services.Configure<TorrentConfiguration>(hostContext.Configuration.GetSection("Torrent"));
+                    services.AddSingleton<DownloadPipelineBinder>();
+                    services.AddSingleton<IDownloadProgressTracker, DownloadProgressReport>();
 
                     var fileSystemConfigKey = "Providers:FileSystem";
                     if (hostContext.Configuration.GetSection(fileSystemConfigKey) != null)
@@ -53,8 +58,8 @@ namespace TorrentDownloadDispatcher
                         services.Configure<RealDebridConfiguration>(hostContext.Configuration.GetSection(realDebridConfigKey));
                         services.AddSingleton<ITorrentToHttpConverter, RealDebridClient>();
                     }
-                    
-                
+
+
                     var aria2cConfigKey = "Providers:Aria2cHttp";
                     if (hostContext.Configuration.GetSection(aria2cConfigKey) != null)
                     {
@@ -63,8 +68,13 @@ namespace TorrentDownloadDispatcher
                     }
 
                     services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
-                    
+
                     services.AddHostedService<Worker>();
-                });
+                })
+            .ConfigureLogging(logging =>
+            {
+                logging.SetMinimumLevel(LogLevel.Trace);
+                logging.ClearProviders();
+            });
     }
 }
