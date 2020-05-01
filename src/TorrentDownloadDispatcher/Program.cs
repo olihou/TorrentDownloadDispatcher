@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using ApplicationCore.Configurations;
 using ApplicationCore.Configurations.HttpDownloadInvoker;
 using ApplicationCore.Configurations.TorrentHttpConverter;
@@ -24,7 +25,7 @@ namespace TorrentDownloadDispatcher.Console
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        static IHostBuilder CreateHostBuilder(string[] args) =>
             Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
                 .UseSystemd()
                 .ConfigureAppConfiguration((context, config) =>
@@ -39,10 +40,8 @@ namespace TorrentDownloadDispatcher.Console
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddOptions();
-                    
                     services.Configure<TorrentConfiguration>(hostContext.Configuration.GetSection("Torrent"));
-                    services.AddSingleton<DownloadPipelineBinder>();
+                    services.AddSingleton<DownloadPipelineBuilder>();
                     services.AddSingleton<IDownloadProgressTracker, DownloadProgressReport>();
 
                     var fileSystemConfigKey = "Providers:FileSystem";

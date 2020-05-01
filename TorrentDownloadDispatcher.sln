@@ -4,9 +4,9 @@ VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationCore", "src\ApplicationCore\ApplicationCore.csproj", "{BC13D0FB-CFF2-405D-AE04-E6A2411AE364}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TorrentDownloadDispatcher.Console", "src\TorrentDownloadDispatcher\TorrentDownloadDispatcher.Console.csproj", "{EE222CB3-801C-4D00-884E-3072826B7F89}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{19596FE7-499E-4D5A-8074-E0FCB41CFF9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorrentDownloadDispatcher.Console", "src\TorrentDownloadDispatcher\TorrentDownloadDispatcher.Console.csproj", "{4DF7DA20-AF95-471C-8CA2-8A496EF30AD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,14 +18,14 @@ Global
 		{BC13D0FB-CFF2-405D-AE04-E6A2411AE364}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC13D0FB-CFF2-405D-AE04-E6A2411AE364}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC13D0FB-CFF2-405D-AE04-E6A2411AE364}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EE222CB3-801C-4D00-884E-3072826B7F89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EE222CB3-801C-4D00-884E-3072826B7F89}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EE222CB3-801C-4D00-884E-3072826B7F89}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EE222CB3-801C-4D00-884E-3072826B7F89}.Release|Any CPU.Build.0 = Release|Any CPU
 		{19596FE7-499E-4D5A-8074-E0FCB41CFF9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{19596FE7-499E-4D5A-8074-E0FCB41CFF9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19596FE7-499E-4D5A-8074-E0FCB41CFF9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19596FE7-499E-4D5A-8074-E0FCB41CFF9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DF7DA20-AF95-471C-8CA2-8A496EF30AD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DF7DA20-AF95-471C-8CA2-8A496EF30AD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DF7DA20-AF95-471C-8CA2-8A496EF30AD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DF7DA20-AF95-471C-8CA2-8A496EF30AD7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

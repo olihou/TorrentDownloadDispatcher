@@ -1,12 +1,19 @@
 {
   "profiles": {
-    "TorrentDownloadDispatcher": {
+    "TorrentDownloadDispatcher.Console": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    },
+    "Console": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:5000"
+      "applicationUrl": "http://localhost:5000/"
     }
   }
 }

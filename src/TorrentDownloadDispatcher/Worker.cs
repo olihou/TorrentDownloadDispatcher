@@ -7,16 +7,16 @@ namespace TorrentDownloadDispatcher.Console
 {
     public class Worker : BackgroundService
     {
-        private readonly DownloadPipelineBinder pipelineBinder;
+        private readonly DownloadPipelineBuilder pipelineBinder;
 
-        public Worker(DownloadPipelineBinder pipelineBinder)
+        public Worker(DownloadPipelineBuilder pipelineBinder)
         {
             this.pipelineBinder = pipelineBinder;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await Task.Run(() => pipelineBinder.Connect(stoppingToken));
+            await Task.Run(function: () => pipelineBinder.Connect(cancellationToken));
         }
     }
 }

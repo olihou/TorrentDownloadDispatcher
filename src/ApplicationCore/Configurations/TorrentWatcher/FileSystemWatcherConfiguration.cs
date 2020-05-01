@@ -1,5 +1,4 @@
-﻿using System;
-namespace ApplicationCore.Configurations.TorrentWatcher
+﻿namespace ApplicationCore.Configurations.TorrentWatcher
 {
     public class FileSystemWatcherConfiguration
     {
