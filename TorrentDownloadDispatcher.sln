@@ -4,7 +4,7 @@ VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationCore", "src\ApplicationCore\ApplicationCore.csproj", "{BC13D0FB-CFF2-405D-AE04-E6A2411AE364}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TorrentDownloadDispatcher", "src\TorrentDownloadDispatcher\TorrentDownloadDispatcher.csproj", "{EE222CB3-801C-4D00-884E-3072826B7F89}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TorrentDownloadDispatcher.Console", "src\TorrentDownloadDispatcher\TorrentDownloadDispatcher.Console.csproj", "{EE222CB3-801C-4D00-884E-3072826B7F89}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{19596FE7-499E-4D5A-8074-E0FCB41CFF9A}"
 EndProject

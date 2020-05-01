@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using ApplicationCore.Services;
 using Microsoft.Extensions.Hosting;
 
-namespace TorrentDownloadDispatcher
+namespace TorrentDownloadDispatcher.Console
 {
     public class Worker : BackgroundService
     {

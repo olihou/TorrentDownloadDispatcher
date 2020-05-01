@@ -73,7 +73,7 @@ namespace ApplicationCore.Services
 
         private void ConnectProgressTracker(CancellationToken ct)
         {
-            _torrentConverter.ProgressHandler().Subscribe(_progressTracker.GetProgressReportDisplay());
+            _torrentConverter.ProgressHandler().Subscribe(_progressTracker.GetProgressReportDisplay(), ct);
         }
     }
 }

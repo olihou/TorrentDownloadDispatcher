@@ -10,7 +10,7 @@ using ApplicationCore.Messages.Notification;
 using ApplicationCore.Models;
 using ShellProgressBar;
 
-namespace TorrentDownloadDispatcher.Display
+namespace TorrentDownloadDispatcher.Console.Display
 {
     public class DownloadProgressReport : IDownloadProgressTracker
     {
@@ -127,8 +127,8 @@ namespace TorrentDownloadDispatcher.Display
             switch (error)
             {
                 case RemoteTorrentDownloadException remoteDownloadException:
-                    Console.WriteLine($"{remoteDownloadException.Download.Id:N} => report an event");
-                    Console.WriteLine($"Reason : {remoteDownloadException.Reason}");
+                    System.Console.WriteLine($"{remoteDownloadException.Download.Id:N} => report an event");
+                    System.Console.WriteLine($"Reason : {remoteDownloadException.Reason}");
                     break;
             }
         }
